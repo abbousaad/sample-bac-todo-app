@@ -8,7 +8,7 @@ const app = express();
 app.use(bodyParser.json());
 app.use(passport.initialize());
 
-const USE_VULNERABLE = process.env.VULNERABLE === 'true';
+const USE_VULNERABLE = process.env.VULNERABLE !== 'false';
 
 let todoRoutes;
 if (USE_VULNERABLE) {
