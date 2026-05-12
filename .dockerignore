@@ -1,0 +1,8 @@
+node_modules
+npm-debug.log
+*.sqlite
+tests/
+.git
+.gitignore
+README.md
+coverage/

@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  todo-vulnerable:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3000"
+    environment:
+      - PORT=3000
+      - VULNERABLE=true
+    volumes:
+      - ./database.sqlite:/app/database.sqlite
+    networks:
+      - todo-network
+
+  todo-patched:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3002:3000"
+    environment:
+      - PORT=3000
+      - VULNERABLE=false
+    volumes:
+      - ./database-patched.sqlite:/app/database.sqlite
+    networks:
+      - todo-network
+
+  todo-tests:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: npm test
+    environment:
+      - VULNERABLE=true
+    volumes:
+      - ./database-test.sqlite:/app/database.sqlite
+    networks:
+      - todo-network
+
+networks:
+  todo-network:
