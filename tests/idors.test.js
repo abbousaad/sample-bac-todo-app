@@ -49,8 +49,14 @@ describe(`OWASP ASVS IDOR & BAC Security Tests ${isVulnerable ? '(VULNERABLE)' :
 
   describe(`${ASVS_CONTROL_IDOR_4_4_1} - Direct Object Reference Prevention`, () => {
     test('User1 should NOT be able to UPDATE User2s todo (IDOR)', async () => {
+      const newTodo = await request(app)
+        .post('/api/todos')
+        .set('Authorization', `Bearer ${user2Token}`)
+        .send({ title: 'User2 Target Todo' });
+      const targetId = newTodo.body.id;
+
       const response = await request(app)
-        .put(`/api/todos/${user2TodoId}`)
+        .put(`/api/todos/${targetId}`)
         .set('Authorization', `Bearer ${user1Token}`)
         .send({ title: 'Hacked Title' });
 
@@ -63,8 +69,14 @@ describe(`OWASP ASVS IDOR & BAC Security Tests ${isVulnerable ? '(VULNERABLE)' :
     });
 
     test('User1 should NOT be able to DELETE User2s todo (IDOR)', async () => {
+      const newTodo = await request(app)
+        .post('/api/todos')
+        .set('Authorization', `Bearer ${user2Token}`)
+        .send({ title: 'User2 Todo For Delete' });
+      const targetId = newTodo.body.id;
+
       const response = await request(app)
-        .delete(`/api/todos/${user2TodoId}`)
+        .delete(`/api/todos/${targetId}`)
         .set('Authorization', `Bearer ${user1Token}`);
 
       const expectedStatus = isVulnerable ? 200 : 403;
@@ -89,8 +101,14 @@ describe(`OWASP ASVS IDOR & BAC Security Tests ${isVulnerable ? '(VULNERABLE)' :
 
   describe(`${ASVS_CONTROL_IDOR_4_4_2} - Cross-Tenant Access Prevention`, () => {
     test('Should prevent access to other users resources through parameter manipulation', async () => {
+      const newTodo = await request(app)
+        .post('/api/todos')
+        .set('Authorization', `Bearer ${user2Token}`)
+        .send({ title: 'User2 Another Todo' });
+      const targetId = newTodo.body.id;
+
       const response = await request(app)
-        .put(`/api/todos/${user2TodoId}`)
+        .put(`/api/todos/${targetId}`)
         .set('Authorization', `Bearer ${user1Token}`)
         .send({ title: 'Parameter Tampering Attempt' });
 
@@ -101,8 +119,14 @@ describe(`OWASP ASVS IDOR & BAC Security Tests ${isVulnerable ? '(VULNERABLE)' :
 
   describe(`${ASVS_CONTROL_BAC_4_1} - Access Control Cannot Be Manipulated`, () => {
     test('Authorization logic should be enforced server-side', async () => {
+      const newTodo = await request(app)
+        .post('/api/todos')
+        .set('Authorization', `Bearer ${user2Token}`)
+        .send({ title: 'User2 Admin Test Todo' });
+      const targetId = newTodo.body.id;
+
       const response = await request(app)
-        .delete(`/api/todos/${user2TodoId}?admin=true`)
+        .delete(`/api/todos/${targetId}?admin=true`)
         .set('Authorization', `Bearer ${user1Token}`);
 
       const expectedStatus = isVulnerable ? 200 : 403;
@@ -110,8 +134,14 @@ describe(`OWASP ASVS IDOR & BAC Security Tests ${isVulnerable ? '(VULNERABLE)' :
     });
 
     test('User role should not be manipulable via request headers', async () => {
+      const newTodo = await request(app)
+        .post('/api/todos')
+        .set('Authorization', `Bearer ${user2Token}`)
+        .send({ title: 'User2 Role Test Todo' });
+      const targetId = newTodo.body.id;
+
       const response = await request(app)
-        .put(`/api/todos/${user2TodoId}`)
+        .put(`/api/todos/${targetId}`)
         .set('Authorization', `Bearer ${user1Token}`)
         .set('X-User-Role', 'admin')
         .send({ title: 'Role Manipulation' });
