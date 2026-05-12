@@ -27,6 +27,14 @@ router.get('/', (req, res) => {
   });
 });
 
+router.get('/:id', (req, res) => {
+  db.get('SELECT * FROM todos WHERE id = ?', [req.params.id], (err, todo) => {
+    if (err) return res.status(500).json({ message: 'Database error' });
+    if (!todo) return res.status(404).json({ message: 'Todo not found' });
+    res.json(todo);
+  });
+});
+
 router.post('/', (req, res) => {
   const { title } = req.body;
   if (!title) {
